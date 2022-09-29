@@ -259,7 +259,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             "SELECT Tag_Photo_ID, COUNT(*) " +
                             "FROM " + TagsTable + " " +
                             "GROUP BY Tag_Photo_ID " +
-                            "ORDER BY COUNT(*) DESC, Tag_Photo_ID ASC) " +
+                            "ORDER BY COUNT(*) DESC " +
+                            "SORT BY Tag_Photo_ID ASC) " +
                             "WHERE ROWNUM <= " + num + ") inner " +
                             "WHERE inner.Tag_Photo_ID = P.Photo_ID AND P.Album_ID = A.Album_ID");
 
