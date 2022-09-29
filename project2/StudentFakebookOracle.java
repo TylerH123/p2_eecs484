@@ -120,15 +120,30 @@ public final class StudentFakebookOracle extends FakebookOracle {
                     "SELECT MAX(LENGTH(First_Name)), MIN(LENGTH(First_Name)) " +
                             "FROM USERS U");
 
-            int max;
-            int min;
+            int max = 0;
+            int min = 0;
             while (rst.next()) {
                 max = rst.getInt(1);
                 min = rst.getInt(2);
-                System.out.println(max + " " + min);
             }
 
             FirstNameInfo info = new FirstNameInfo();
+
+            rst = stmt.executeQuery(
+                    "SELECT DISTINCT First_Name " +
+                            "FROM USERS U " +
+                            "WHERE LENGTH(First_Name) = " + max + " ");
+            while (rst.next()) {
+                info.addLongName(rst.getString(1));
+            }
+
+            rst = stmt.executeQuery(
+                    "SELECT DISTINCT First_Name " +
+                            "FROM USERS U " +
+                            "WHERE LENGTH(First_Name) = " + min);
+            while (rst.next()) {
+                info.addShortName(rst.getString(1));
+            }
 
             /*
              * EXAMPLE DATA STRUCTURE USAGE
@@ -143,7 +158,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
              * info.setCommonNameCount(42);
              * return info;
              */
-            return new FirstNameInfo(); // placeholder for compilation
+            return info; // placeholder for compilation
         } catch (SQLException e) {
             System.err.println(e.getMessage());
             return new FirstNameInfo();
