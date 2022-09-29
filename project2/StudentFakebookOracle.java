@@ -220,7 +220,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             "FROM " + UsersTable + " U, " + CurrentCitiesTable + " C, " +
                             HometownCitiesTable + " H " +
                             "WHERE U.User_ID = C.User_ID AND U.User_ID = H.User_ID AND " +
-                            "C.Current_City_ID IS NOT NULL AND H.Hometown_City_ID IS NOT NULL " +
+                            "C.Current_City_ID IS NOT NULL AND H.Hometown_City_ID IS NOT NULL AND " +
                             "C.Current_City_ID != H.Hometown_City_ID " +
                             "ORDER BY U.User_ID");
 
@@ -228,15 +228,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 UserInfo u = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
                 results.add(u);
             }
-
-            /*
-             * EXAMPLE DATA STRUCTURE USAGE
-             * ============================================
-             * UserInfo u1 = new UserInfo(9, "Meryl", "Streep");
-             * UserInfo u2 = new UserInfo(104, "Tom", "Hanks");
-             * results.add(u1);
-             * results.add(u2);
-             */
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
