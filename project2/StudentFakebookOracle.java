@@ -161,7 +161,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 info.addCommonName(rst.getString(1));
             }
 
-            return info; // placeholder for compilation
+            return info;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
             return new FirstNameInfo();
@@ -183,10 +183,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
-            // SELECT USER_ID, FIRST_NAME, LAST_NAME FROM PROJECT2.PUBLIC_USERS WHERE
-            // USER_ID NOT IN (SELECT DISTINCT USER_ID FROM PROJECT2.PUBLIC_USERS U,
-            // PROJECT2.PUBLIC_FRIENDS F WHERE U.USER_ID = F.USER1_ID OR U.USER_ID =
-            // F.USER2_ID);
             ResultSet rst = stmt.executeQuery(
                     "SELECT User_ID, First_Name, Last_Name " +
                             "FROM " + UsersTable + " " +
@@ -198,18 +194,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
             while (rst.next()) {
                 UserInfo u = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
-                System.out.println(u);
                 results.add(u);
             }
-
-            /*
-             * EXAMPLE DATA STRUCTURE USAGE
-             * ============================================
-             * UserInfo u1 = new UserInfo(15, "Abraham", "Lincoln");
-             * UserInfo u2 = new UserInfo(39, "Margaret", "Thatcher");
-             * results.add(u1);
-             * results.add(u2);
-             */
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -228,6 +214,21 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT U.User_ID, U.First_Name, U.Last_Name " +
+                            "FROM " + UsersTable + " U, " + CurrentCitiesTable + " C, " +
+                            HometownCitiesTable + " H " +
+                            "WHERE U.User_ID = C.User_ID AND U.User_ID = H.User_ID AND " +
+                            "C.Current_City_ID IS NOT NULL AND H.Hometown_City_ID IS NOT NULL " +
+                            "C.Current_City_ID != H.Hometown_City_ID " +
+                            "ORDER BY U.User_ID");
+
+            while (rst.next()) {
+                UserInfo u = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
+                results.add(u);
+            }
+
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
