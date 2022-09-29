@@ -190,8 +190,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
             ResultSet rst = stmt.executeQuery(
                     "SELECT User_ID, First_Name, Last_Name " +
                             "FROM " + UsersTable + " " +
-                            "MINUS" +
-                            "(SELECT DISTINCT User_ID " +
+                            "WHERE User_ID NOT IN " +
+                            "(SELECT DISTINCT U.User_ID, U.First_Name, U.Last_Name" +
                             "FROM " + UsersTable + " U, " + FriendsTable + " F " +
                             "WHERE U.User_ID = F.User1_ID OR U.User_ID = F.User2_ID)" +
                             "ORDER BY USER_ID");
