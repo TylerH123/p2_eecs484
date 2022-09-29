@@ -117,7 +117,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 FakebookOracleConstants.ReadOnly)) {
 
             ResultSet rst = stmt.executeQuery(
-                    "SELECT MAX(LENGTH(First_Name)), MIN(LENGH(First_Name)) " +
+                    "SELECT MAX(LENGTH(First_Name)), MIN(LENGTH(First_Name)) " +
                             "FROM USERS U");
 
             int max;
