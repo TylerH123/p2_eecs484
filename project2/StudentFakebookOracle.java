@@ -183,6 +183,10 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
+            // SELECT USER_ID, FIRST_NAME, LAST_NAME FROM PROJECT2.PUBLIC_USERS WHERE
+            // USER_ID NOT IN (SELECT DISTINCT USER_ID FROM PROJECT2.PUBLIC_USERS U,
+            // PROJECT2.PUBLIC_FRIENDS F WHERE U.USER_ID = F.USER1_ID OR U.USER_ID =
+            // F.USER2_ID);
             ResultSet rst = stmt.executeQuery(
                     "SELECT User_ID, First_Name, Last_Name " +
                             "FROM " + UsersTable + " " +
