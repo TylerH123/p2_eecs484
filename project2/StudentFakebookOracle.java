@@ -277,18 +277,21 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             "ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC");
 
             while (rst.next()) {
-                PhotoInfo p = new PhotoInfo(rst.getInt(1), rst.getInt(2), rst.getString(3), rst.getString(4));
-                ResultSet inner = stmt.executeQuery(
-                        "SELECT U.User_ID, U.First_Name, U.Last_Name " +
-                                "FROM " + UsersTable + " u, " + TagsTable + " T " +
-                                "WHERE U.User_ID = T.Tag_Subject_ID AND T.Tag_Photo_ID = " + rst.getInt(1));
+                // PhotoInfo p = new PhotoInfo(rst.getInt(1), rst.getInt(2), rst.getString(3),
+                // rst.getString(4));
+                // ResultSet inner = stmt.executeQuery(
+                // "SELECT U.User_ID, U.First_Name, U.Last_Name " +
+                // "FROM " + UsersTable + " u, " + TagsTable + " T " +
+                // "WHERE U.User_ID = T.Tag_Subject_ID AND T.Tag_Photo_ID = " + rst.getInt(1));
 
-                TaggedPhotoInfo tp = new TaggedPhotoInfo(p);
-                while (inner.next()) {
-                    UserInfo u = new UserInfo(inner.getInt(1), inner.getString(2), inner.getString(3));
-                    tp.addTaggedUser(u);
-                }
-                results.add(tp);
+                // TaggedPhotoInfo tp = new TaggedPhotoInfo(p);
+                // while (inner.next()) {
+                // UserInfo u = new UserInfo(inner.getInt(1), inner.getString(2),
+                // inner.getString(3));
+                // tp.addTaggedUser(u);
+                // }
+                // results.add(tp);
+                System.out.println(rst.getInt(1) + rst.getInt(2) + rst.getString(3) + rst.getString(4));
             }
             /*
              * EXAMPLE DATA STRUCTURE USAGE
