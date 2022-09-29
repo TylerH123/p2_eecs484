@@ -161,19 +161,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 info.addCommonName(rst.getString(1));
             }
 
-            /*
-             * EXAMPLE DATA STRUCTURE USAGE
-             * ============================================
-             * info.addLongName("Aristophanes");
-             * info.addLongName("Michelangelo");
-             * info.addLongName("Peisistratos");
-             * info.addShortName("Bob");
-             * info.addShortName("Sue");
-             * info.addCommonName("Harold");
-             * info.addCommonName("Jessica");
-             * info.setCommonNameCount(42);
-             * return info;
-             */
             return info; // placeholder for compilation
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -195,6 +182,20 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT DISTINCT USER_ID, FIRST_NAME, LAST_NAME " +
+                            "FROM " + UsersTable + " " +
+                            "WHERE USER_ID NOT IN + (" +
+                            "SELECT USER_ID " +
+                            "FROM " + UsersTable + " U, " + FriendsTable + " F " +
+                            "WHERE U.USER_ID = F.USER1_ID OR U.USER_ID = F.USER2_ID) " +
+                            "ORDER BY USER_ID");
+
+            while (rst.next()) {
+                UserInfo u = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
+                results.add(u);
+            }
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
