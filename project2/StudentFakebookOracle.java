@@ -279,23 +279,25 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             "WHERE inner.Tag_Photo_ID = P.Photo_ID AND P.Album_ID = A.Album_ID " +
                             "ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC");
 
-            while (rst.next()) {
-                PhotoInfo p = new PhotoInfo(rst.getInt(1), rst.getInt(2), rst.getString(3),
-                        rst.getString(4));
-                ResultSet inner = stmt.executeQuery(
-                        "SELECT U.User_ID, U.First_Name, U.Last_Name " +
-                                "FROM " + UsersTable + " u, " + TagsTable + " T " +
-                                "WHERE U.User_ID = T.Tag_Subject_ID AND T.Tag_Photo_ID = " + rst.getInt(1));
-
-                TaggedPhotoInfo tp = new TaggedPhotoInfo(p);
-                while (inner.next()) {
-                    UserInfo u = new UserInfo(inner.getInt(1), inner.getString(2),
-                            inner.getString(3));
-                    tp.addTaggedUser(u);
+            try (Statement stmtInner = oracle.createStatement(FakebookOracleConstants.AllScroll,
+                    FakebookOracleConstants.ReadOnly)) {
+                while (rst.next()) {
+                    PhotoInfo p = new PhotoInfo(rst.getInt(1), rst.getInt(2), rst.getString(3),
+                            rst.getString(4));
+                    TaggedPhotoInfo tp = new TaggedPhotoInfo(p);
+                    ResultSet inner = stmtInner.executeQuery(
+                            "SELECT U.User_ID, U.First_Name, U.Last_Name " +
+                                    "FROM " + UsersTable + " u, " + TagsTable + " T " +
+                                    "WHERE U.User_ID = T.Tag_Subject_ID AND T.Tag_Photo_ID = " + rst.getInt(1));
+                    while (inner.next()) {
+                        UserInfo u = new UserInfo(inner.getInt(1), inner.getString(2),
+                                inner.getString(3));
+                        tp.addTaggedUser(u);
+                    }
+                    results.add(tp);
                 }
-                results.add(tp);
-                // System.out.println(rst.getInt(1) + rst.getInt(2) + rst.getString(3) +
-                // rst.getString(4));
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
             }
             /*
              * EXAMPLE DATA STRUCTURE USAGE
