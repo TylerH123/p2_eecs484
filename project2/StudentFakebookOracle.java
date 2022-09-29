@@ -191,7 +191,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                     "SELECT User_ID, First_Name, Last_Name " +
                             "FROM " + UsersTable + " " +
                             "WHERE User_ID NOT IN " +
-                            "(SELECT DISTINCT U.User_ID, U.First_Name, U.Last_Name " +
+                            "(SELECT DISTINCT U.User_ID " +
                             "FROM " + UsersTable + " U, " + FriendsTable + " F " +
                             "WHERE U.User_ID = F.User1_ID OR U.User_ID = F.User2_ID)" +
                             "ORDER BY USER_ID");
