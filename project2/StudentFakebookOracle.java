@@ -252,17 +252,29 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
+            // SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name
+            // FROM project2.Public_Photos P, project2.Public_Albums A, (
+            // SELECT innermost.Tag_Photo_ID, innermost.CT FROM (
+            // SELECT Tag_Photo_ID, COUNT(*) AS CT
+            // FROM project2.Public_Tags
+            // GROUP BY Tag_Photo_ID ORDER BY CT DESC, Tag_Photo_ID ASC
+            // ) innermost
+            // WHERE ROWNUM <= 5
+            // ) inner
+            // WHERE inner.Tag_Photo_ID = P.Photo_ID and P.Album_ID = A.Album_ID
+            // ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC;
+
             ResultSet rst = stmt.executeQuery(
-                    "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name " +
+                    "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name" +
                             "FROM " + PhotosTable + " P, " + AlbumsTable + " A, " +
                             "(SELECT Tag_Photo_ID FROM ( " +
-                            "SELECT Tag_Photo_ID, COUNT(*) " +
+                            "SELECT Tag_Photo_ID, COUNT(*) AS CT" +
                             "FROM " + TagsTable + " " +
                             "GROUP BY Tag_Photo_ID " +
-                            "ORDER BY COUNT(*) DESC " +
-                            "SORT BY Tag_Photo_ID ASC) " +
+                            "ORDER BY CT DESC, Tag_Photo_ID ASC) " +
                             "WHERE ROWNUM <= " + num + ") inner " +
-                            "WHERE inner.Tag_Photo_ID = P.Photo_ID AND P.Album_ID = A.Album_ID");
+                            "WHERE inner.Tag_Photo_ID = P.Photo_ID AND P.Album_ID = A.Album_ID " +
+                            "ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC");
 
             while (rst.next()) {
                 PhotoInfo p = new PhotoInfo(rst.getInt(1), rst.getInt(2), rst.getString(3), rst.getString(4));
