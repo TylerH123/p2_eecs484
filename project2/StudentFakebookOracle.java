@@ -267,11 +267,11 @@ public final class StudentFakebookOracle extends FakebookOracle {
             ResultSet rst = stmt.executeQuery(
                     "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name" +
                             "FROM " + PhotosTable + " P, " + AlbumsTable + " A, " +
-                            "(SELECT Tag_Photo_ID FROM ( " +
+                            "(SELECT innermost.Tag_Photo_ID, innermost.CT FROM ( " +
                             "SELECT Tag_Photo_ID, COUNT(*) AS CT" +
                             "FROM " + TagsTable + " " +
                             "GROUP BY Tag_Photo_ID " +
-                            "ORDER BY CT DESC, Tag_Photo_ID ASC) " +
+                            "ORDER BY CT DESC, Tag_Photo_ID ASC) innermost" +
                             "WHERE ROWNUM <= " + num + ") inner " +
                             "WHERE inner.Tag_Photo_ID = P.Photo_ID AND P.Album_ID = A.Album_ID " +
                             "ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC");
