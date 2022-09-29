@@ -6,6 +6,8 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import javax.swing.text.html.HTML.Tag;
+
 /*
     The StudentFakebookOracle class is derived from the FakebookOracle class and implements
     the abstract query functions that investigate the database provided via the <connection>
@@ -249,6 +251,32 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name " +
+                            "FROM " + PhotosTable + " P, " + AlbumsTable + " A, " +
+                            "(SELECT Tag_Photo_ID FROM ( " +
+                            "SELECT Tag_Photo_ID, COUNT(*) " +
+                            "FROM " + TagsTable + " " +
+                            "GROUP BY Tag_Photo_ID " +
+                            "ORDER BY COUNT(*) DESC, Tag_Photo_ID ASC) " +
+                            "WHERE ROWNUM <= " + num + ") inner " +
+                            "WHERE inner.Tag_Photo_ID = P.Photo_ID AND P.Album_ID = A.Album_ID");
+
+            while (rst.next()) {
+                PhotoInfo p = new PhotoInfo(rst.getInt(1), rst.getInt(2), rst.getString(3), rst.getString(4));
+                ResultSet inner = stmt.executeQuery(
+                        "SELECT U.User_ID, U.First_Name, U.Last_Name " +
+                                "FROM " + UsersTable + " u, " + TagsTable + " T " +
+                                "WHERE U.User_ID = T.Tag_Subject_ID AND T.Tag_Photo_ID = " + rst.getInt(1));
+
+                TaggedPhotoInfo tp = new TaggedPhotoInfo(p);
+                while (inner.next()) {
+                    UserInfo u = new UserInfo(inner.getInt(1), inner.getString(2), inner.getString(3));
+                    tp.addTaggedUser(u);
+                }
+                results.add(tp);
+            }
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
