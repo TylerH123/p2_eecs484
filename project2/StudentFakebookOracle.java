@@ -194,8 +194,10 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
             while (rst.next()) {
                 UserInfo u = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
+                System.out.println(u);
                 results.add(u);
             }
+
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
