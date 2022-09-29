@@ -131,7 +131,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
             rst = stmt.executeQuery(
                     "SELECT DISTINCT First_Name " +
-                            "FROM USERS U " +
+                            "FROM " + UsersTable + " " +
                             "WHERE LENGTH(First_Name) = " + max + " ");
             while (rst.next()) {
                 info.addLongName(rst.getString(1));
@@ -139,10 +139,26 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
             rst = stmt.executeQuery(
                     "SELECT DISTINCT First_Name " +
-                            "FROM USERS U " +
+                            "FROM " + UsersTable + " " +
                             "WHERE LENGTH(First_Name) = " + min);
             while (rst.next()) {
                 info.addShortName(rst.getString(1));
+            }
+
+            rst = stmt.executeQuery(
+                    "SELECT First_Name, COUNT(*) " +
+                            "FROM " + UsersTable + " " +
+                            "GROUP BY First_Name " +
+                            "ORDER BY COUNT(*) DESC");
+
+            int commonNameCount = -1;
+            if (rst.next()) {
+                commonNameCount = rst.getInt(2);
+                info.addCommonName(rst.getString(1));
+                info.setCommonNameCount(commonNameCount);
+            }
+            while (rst.next() && rst.getInt(2) == commonNameCount) {
+                info.addCommonName(rst.getString(1));
             }
 
             /*
