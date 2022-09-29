@@ -266,7 +266,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
             // ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC;
 
             ResultSet rst = stmt.executeQuery(
-                    "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name" +
+                    "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name " +
                             "FROM " + PhotosTable + " P, " + AlbumsTable + " A, ( " +
                             "SELECT innermost.Tag_Photo_ID, innermost.CT FROM ( " +
                             "SELECT Tag_Photo_ID, COUNT(*) AS CT " +
