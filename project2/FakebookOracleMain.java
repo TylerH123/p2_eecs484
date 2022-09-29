@@ -8,13 +8,14 @@ import java.sql.SQLException;
 
 public final class FakebookOracleMain {
     // Member Variables
-    private static String username = "UNIQNAME"; // place your uniqname here
-    private static String password = "PASSWORD"; // place your Oracle/SQL*PLUS password here
+    private static String username = "tylhuang"; // place your uniqname here
+    private static String password = "Tyler123H!"; // place your Oracle/SQL*PLUS password here
 
     // [Main Function]
     // Expected Command Line Arguments:
-    //  [0] either "all" or a digit 0-9, representing what query to run
-    //  [1] either "p" or "t", indicating "print results" and "time queries" respectively
+    // [0] either "all" or a digit 0-9, representing what query to run
+    // [1] either "p" or "t", indicating "print results" and "time queries"
+    // respectively
     public static void main(String[] args) {
         int start = 0; // inclusive
         int stop = 10; // exclusive
