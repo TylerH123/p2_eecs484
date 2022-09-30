@@ -352,15 +352,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
             // WHERE U1.User_ID = inner.U1_ID AND U2.User_ID = inner.U2_ID
             // AND ROWNUM <= 2;
 
-            // "P.Photo_ID, P.Photo_Link, P.Album_ID, A.Album_Name"
-
-            // PhotosTable + " P, " + TaggedPhotoInfo + " T1, " + TaggedPhotoInfo + " T2, "
-            // + AlbumsTable + " A "
-
-            // "AND T1.Tab_Subject_ID = U1.User_ID AND T2.Tab_Subject_ID = U2.User_ID AND
-            // T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
-            // "AND P.Photo_ID = T1.Tag_Photo_ID AND P.Album_ID = A.Album_ID"
-
             ResultSet rst = stmt.executeQuery(
                     "SELECT U1.USER_ID, U1.First_Name, U1.Last_Name, U1.Year_of_birth, U2.USER_ID, U2.First_Name, U2.Last_Name, U2.Year_of_birth "
                             +
@@ -397,7 +388,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             "SELECT P.Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name " +
                                     "FROM " + PhotosTable + " P, " + TagsTable + " T1, " +
                                     TagsTable + " T2, " + AlbumsTable + " A " +
-                                    "WHERE T1.Tab_Subject_ID = " + u1_id + " AND T2.Tab_Subject_ID = " + u2_id +
+                                    "WHERE T1.Tag_Subject_ID = " + u1_id + " AND T2.Tag_Subject_ID = " + u2_id +
                                     "AND T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
                                     "AND P.Photo_ID = T1.Tag_Photo_ID AND P.Album_ID = A.Album_ID " +
                                     "ORDER BY P.Photo_ID");
