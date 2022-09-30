@@ -120,7 +120,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
             ResultSet rst = stmt.executeQuery(
                     "SELECT MAX(LENGTH(First_Name)), MIN(LENGTH(First_Name)) " +
-                            "FROM USERS U");
+                            "FROM " + UsersTable);
 
             int max = 0;
             int min = 0;
@@ -134,7 +134,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
             rst = stmt.executeQuery(
                     "SELECT DISTINCT First_Name " +
                             "FROM " + UsersTable + " " +
-                            "WHERE LENGTH(First_Name) = " + max + " ");
+                            "WHERE LENGTH(First_Name) = " + max + " " +
+                            "ORDER BY First_Name");
             while (rst.next()) {
                 info.addLongName(rst.getString(1));
             }
@@ -142,7 +143,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
             rst = stmt.executeQuery(
                     "SELECT DISTINCT First_Name " +
                             "FROM " + UsersTable + " " +
-                            "WHERE LENGTH(First_Name) = " + min);
+                            "WHERE LENGTH(First_Name) = " + min + " " +
+                            "ORDER BY First_Name");
             while (rst.next()) {
                 info.addShortName(rst.getString(1));
             }
@@ -252,19 +254,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
-            // SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name
-            // FROM project2.Public_Photos P, project2.Public_Albums A, (
-            // SELECT innermost.Tag_Photo_ID, innermost.CT FROM (
-            // SELECT Tag_Photo_ID, COUNT(*) AS CT
-            // FROM project2.Public_Tags
-            // GROUP BY Tag_Photo_ID
-            // ORDER BY CT DESC, Tag_Photo_ID ASC
-            // ) innermost
-            // WHERE ROWNUM <= 5
-            // ) inner
-            // WHERE inner.Tag_Photo_ID = P.Photo_ID and P.Album_ID = A.Album_ID
-            // ORDER BY inner.CT DESC, inner.Tag_Photo_ID ASC;
-
             ResultSet rst = stmt.executeQuery(
                     "SELECT inner.Tag_Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name " +
                             "FROM " + PhotosTable + " P, " + AlbumsTable + " A, ( " +
@@ -338,6 +327,91 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            // SELECT U1.USER_ID, U1.First_Name, U1.Last_Name, U1.Year_of_birth, U2.USER_ID,
+            // U2.First_Name, U2.Last_Name, U2.Year_of_birth,
+            // FROM project2.Public_Users U1, project2.Public_Users U2, (
+            // SELECT T1.Tag_Subject_ID AS U1_ID, T2.Tag_Subject_ID AS U2_ID, COUNT(*)
+            // FROM project2.Public_Tags T1, project2.Public_Tags T2,
+            // (
+            // SELECT DISTINCT U1.User_ID AS U1_ID, U2.User_ID AS U2_ID
+            // FROM project2.Public_Users U1, project2.Public_Users U2, project2.Public_Tags
+            // T1, project2.Public_Tags T2, project2.Public_Friends F
+            // WHERE U1.gender = U2.gender AND T1.Tag_Photo_ID = T2.Tag_Photo_ID
+            // AND T1.Tag_Subject_ID = U1.User_ID AND T2.Tag_Subject_ID = U2.User_ID
+            // AND U1.User_ID < U2.User_ID AND U1.User_ID != F.User1_ID AND U2.User_ID !=
+            // F.User2_ID
+            // AND ABS(U1.Year_of_birth - U2.Year_of_birth) <= 2
+            // ) innermost
+            // WHERE T1.Tag_Subject_ID = innermost.U1_ID AND T2.Tag_Subject_ID =
+            // innermost.U2_ID
+            // AND T1.Tag_Photo_ID = T2.Tag_Photo_ID
+            // GROUP BY T1.Tag_Subject_ID, T2.Tag_Subject_ID
+            // ORDER BY COUNT(*) DESC, T1.Tag_Subject_ID, T2.Tag_Subject_ID
+            // ) inner
+            // WHERE U1.User_ID = inner.U1_ID AND U2.User_ID = inner.U2_ID
+            // AND ROWNUM <= 2;
+
+            // "P.Photo_ID, P.Photo_Link, P.Album_ID, A.Album_Name"
+
+            // PhotosTable + " P, " + TaggedPhotoInfo + " T1, " + TaggedPhotoInfo + " T2, "
+            // + AlbumsTable + " A "
+
+            // "AND T1.Tab_Subject_ID = U1.User_ID AND T2.Tab_Subject_ID = U2.User_ID AND
+            // T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
+            // "AND P.Photo_ID = T1.Tag_Photo_ID AND P.Album_ID = A.Album_ID"
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT U1.USER_ID, U1.First_Name, U1.Last_Name, U1.Year_of_birth, U2.USER_ID, U2.First_Name, U2.Last_Name, U2.Year_of_birth "
+                            +
+                            "FROM " + UsersTable + " U1, " + UsersTable + " U2, ( " +
+                            "SELECT T1.Tag_Subject_ID AS U1_ID, T2.Tag_Subject_ID AS U2_ID, COUNT(*) " +
+                            "FROM " + TagsTable + " T1, " + TagsTable + " T2, ( " +
+                            "SELECT DISTINCT U1.User_ID AS U1_ID, U2.User_ID AS U2_ID " +
+                            "FROM " + UsersTable + " U1, " + UsersTable + " U2, " + TagsTable + " T1, "
+                            + TagsTable + " T2, " + FriendsTable + " F " +
+                            "WHERE U1.gender = U2.gender AND T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
+                            "AND T1.Tag_Subject_ID = U1.User_ID AND T2.Tag_Subject_ID = U2.User_ID " +
+                            "AND U1.User_ID < U2.User_ID AND U1.User_ID != F.User1_ID AND U2.User_ID != F.User2_ID " +
+                            "AND ABS(U1.Year_of_birth - U2.Year_of_birth) <= " + yearDiff + " " +
+                            ") innermost " +
+                            "WHERE T1.Tag_Subject_ID = innermost.U1_ID AND T2.Tag_Subject_ID = innermost.U2_ID " +
+                            "AND T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
+                            "GROUP BY T1.Tag_Subject_ID, T2.Tag_Subject_ID " +
+                            "ORDER BY COUNT(*) DESC, T1.Tag_Subject_ID, T2.Tag_Subject_ID " +
+                            ") inner " +
+                            "WHERE U1.User_ID = inner.U1_ID AND U2.User_ID = inner.U2_ID " +
+                            "AND ROWNUM <= " + num);
+
+            try (Statement stmtInner = oracle.createStatement(FakebookOracleConstants.AllScroll,
+                    FakebookOracleConstants.ReadOnly)) {
+                while (rst.next()) {
+                    int u1_id = rst.getInt(1);
+                    int u2_id = rst.getInt(5);
+
+                    UserInfo u1 = new UserInfo(u1_id, rst.getString(2), rst.getString(3));
+                    UserInfo u2 = new UserInfo(u2_id, rst.getString(6), rst.getString(7));
+                    MatchPair mp = new MatchPair(u1, rst.getInt(4), u2, rst.getInt(8));
+
+                    ResultSet inner = stmtInner.executeQuery(
+                            "SELECT P.Photo_ID, P.Album_ID, P.Photo_Link, A.Album_Name " +
+                                    "FROM " + PhotosTable + " P, " + TagsTable + " T1, " +
+                                    TagsTable + " T2, " + AlbumsTable + " A " +
+                                    "WHERE T1.Tab_Subject_ID = " + u1_id + " AND T2.Tab_Subject_ID = " + u2_id +
+                                    "AND T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
+                                    "AND P.Photo_ID = T1.Tag_Photo_ID AND P.Album_ID = A.Album_ID " +
+                                    "ORDER BY P.Photo_ID");
+                    while (inner.next()) {
+                        PhotoInfo p = new PhotoInfo(inner.getInt(1), inner.getInt(2), inner.getString(3),
+                                inner.getString(4));
+                        mp.addSharedPhoto(p);
+                    }
+                    results.add(mp);
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+            }
+
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
