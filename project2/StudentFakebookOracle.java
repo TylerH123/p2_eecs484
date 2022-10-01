@@ -436,6 +436,12 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
+            SELECT DISTINCT U2.User_ID 
+            FROM project2.Public_Users U1, project2.Public_Users U2, project2.Public_Friends F 
+            WHERE U1.User_ID < U2.User_ID AND U1.User_ID != F.User1_ID AND U2.User_ID != F.User2_ID
+            AND U1.User_ID = 0
+            ORDER BY U2.User_ID;
+
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
@@ -519,56 +525,47 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
-            // SELECT U1, U2 FROM (
-            // SELECT DISTINCT USER_ID as U1
-            // FROM project2.Public_Users
-            // WHERE User_ID < 215
-            // ) CROSS JOIN (
-            // SELECT DISTINCT USER_ID as U2
-            // FROM project2.Public_Users
-            // WHERE User_ID = 215
-            // ) UNION
-            // SELECT U1, U2 FROM (
-            // SELECT DISTINCT USER_ID as U1
-            // FROM project2.Public_Users
-            // WHERE User_ID = 215
-            // ) CROSS JOIN (
-            // SELECT DISTINCT USER_ID as U2
-            // FROM project2.Public_Users
-            // WHERE User_ID > 215
-            // );
+            // SELECT inner.ID, U.First_Name, U.Last_Name, U.Year_of_birth,
+            // U.Month_of_Birth, U.Day_of_Birth
+            // FROM project2.Public_Users U, (
+            // SELECT User1_ID as ID FROM project2.Public_Friends
+            // WHERE User2_ID = 215
+            // UNION
+            // SELECT User2_ID as ID FROM project2.Public_Friends
+            // WHERE User1_ID = 215
+            // ) inner
+            // WHERE U.User_ID = inner.ID
+            // ORDER BY U.Year_of_birth DESC, U.Month_of_Birth DESC, U.Day_of_Birth DESC,
+            // inner.ID DESC;
 
-            // SELECT Author_ID, First_Name, Last_Name
-            // FROM Authors
-            // WHERE Author_ID NOT IN (
-            // SELECT DISTINCT Author_ID FROM (
-            // SELECT User_ID
-            // FROM (
-            // SELECT U1, U2 FROM (
-            // SELECT DISTINCT USER_ID as U1
-            // FROM project2.Public_Users
-            // WHERE User_ID < 215
-            // ) CROSS JOIN (
-            // SELECT DISTINCT USER_ID as U2
-            // FROM project2.Public_Users
-            // WHERE User_ID = 215
-            // ) UNION
-            // SELECT U1, U2 FROM (
-            // SELECT DISTINCT USER_ID as U1
-            // FROM project2.Public_Users
-            // WHERE User_ID = 215
-            // ) CROSS JOIN (
-            // SELECT DISTINCT USER_ID as U2
-            // FROM project2.Public_Users
-            // WHERE User_ID > 215
-            // )
-            // MINUS
-            // ( SELECT DISTINCT A.Author_ID, S.Subject_ID
-            // FROM Authors A, Books B, Subjects S
-            // WHERE A.Author_ID = B.Author_ID AND B.Subject_ID = S.Subject_ID
-            // )
-            // )
-            // )
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT inner.ID, U.First_Name, U.Last_Name, U.Year_of_birth, U.Month_of_Birth, U.Day_of_Birth " +
+                            "FROM " + UsersTable + " U, ( " +
+                            "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                            "WHERE User2_ID = " + userID + " " +
+                            "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                            "WHERE User1_ID = " + userID + " " +
+                            ") inner " +
+                            "WHERE U.User_ID = inner.ID " +
+                            "ORDER BY U.Year_of_birth, U.Month_of_Birth, U.Day_of_Birth, inner.ID DESC");
+
+            rst.next();
+            UserInfo old = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
+
+            rst = stmt.executeQuery(
+                    "SELECT inner.ID, U.First_Name, U.Last_Name, U.Year_of_birth, U.Month_of_Birth, U.Day_of_Birth " +
+                            "FROM " + UsersTable + " U, ( " +
+                            "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                            "WHERE User2_ID = " + userID + " " +
+                            "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                            "WHERE User1_ID = " + userID + " " +
+                            ") inner " +
+                            "WHERE U.User_ID = inner.ID " +
+                            "ORDER BY U.Year_of_birth DESC, U.Month_of_Birth DESC, U.Day_of_Birth DESC, inner.ID DESC");
+
+            rst.next();
+            UserInfo young = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
+            return new AgeInfo(old, young);
 
             /*
              * EXAMPLE DATA STRUCTURE USAGE
@@ -577,9 +574,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
              * UserInfo young = new UserInfo(80000000, "Neil", "deGrasse Tyson");
              * return new AgeInfo(old, young);
              */
-            return new AgeInfo(new UserInfo(-1, "UNWRITTEN", "UNWRITTEN"), new UserInfo(-1, "UNWRITTEN", "UNWRITTEN")); // placeholder
-                                                                                                                        // for
-                                                                                                                        // compilation
         } catch (SQLException e) {
             System.err.println(e.getMessage());
             return new AgeInfo(new UserInfo(-1, "ERROR", "ERROR"), new UserInfo(-1, "ERROR", "ERROR"));
