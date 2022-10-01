@@ -368,7 +368,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             ") innermost " +
                             "WHERE T1.Tag_Subject_ID = innermost.U1_ID AND T2.Tag_Subject_ID = innermost.U2_ID " +
                             "AND T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
-                            "GROUP BY T1.Tag_Subject_ID, T2.Tag_Subject_ID " +
+                            "GROUP BY U1_ID, U2_ID " +
                             "ORDER BY COUNT(*) DESC, T1.Tag_Subject_ID, T2.Tag_Subject_ID " +
                             ") inner " +
                             "WHERE U1.User_ID = inner.U1_ID AND U2.User_ID = inner.U2_ID " +
@@ -461,6 +461,35 @@ public final class StudentFakebookOracle extends FakebookOracle {
     public EventStateInfo findEventStates() throws SQLException {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            // SELECT C.State_Name, COUNT(*)
+            // FROM project2.Public_Cities C, project2.Public_User_Events E
+            // WHERE E.Event_City_ID = C.City_ID
+            // GROUP BY C.State_Name
+            // ORDER BY COUNT(*) DESC, C.State_Name;
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT C.State_Name, COUNT(*) " +
+                            "FROM " + CitiesTable + " C, " + EventsTable + " E " +
+                            "WHERE E.Event_City_ID = C.City_ID " +
+                            "GROUP BY C.State_Name " +
+                            "ORDER BY COUNT(*) DESC, C.State_Name");
+
+            int highest = 0;
+            EventStateInfo info = new EventStateInfo(-1);
+            if (rst.next()) {
+                info = new EventStateInfo(highest);
+                highest = rst.getInt(2);
+                info.addState(rst.getString(1));
+            }
+            while (rst.next()) {
+                if (rst.getInt(2) == highest) {
+                    info.addState(rst.getString(1));
+                } else {
+                    break;
+                }
+            }
+
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
@@ -470,7 +499,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
              * info.addState("New Hampshire");
              * return info;
              */
-            return new EventStateInfo(-1); // placeholder for compilation
+            return info; // placeholder for compilation
         } catch (SQLException e) {
             System.err.println(e.getMessage());
             return new EventStateInfo(-1);
@@ -488,21 +517,75 @@ public final class StudentFakebookOracle extends FakebookOracle {
     public AgeInfo findAgeInfo(long userID) throws SQLException {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
-            /*
-             * EXAMPLE DATA STRUCTURE USAGE
-             * ============================================
-             * UserInfo old = new UserInfo(12000000, "Galileo", "Galilei");
-             * UserInfo young = new UserInfo(80000000, "Neil", "deGrasse Tyson");
-             * return new AgeInfo(old, young);
-             */
-            return new AgeInfo(new UserInfo(-1, "UNWRITTEN", "UNWRITTEN"), new UserInfo(-1, "UNWRITTEN", "UNWRITTEN")); // placeholder
-                                                                                                                        // for
-                                                                                                                        // compilation
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-            return new AgeInfo(new UserInfo(-1, "ERROR", "ERROR"), new UserInfo(-1, "ERROR", "ERROR"));
-        }
-    }
+            
+    //         SELECT U1, U2 FROM (
+    //             SELECT DISTINCT USER_ID as U1 
+    //             FROM project2.Public_Users 
+    //             WHERE User_ID < 215
+    //         ) CROSS JOIN (
+    //             SELECT DISTINCT USER_ID as U2
+    //             FROM project2.Public_Users 
+    //             WHERE User_ID = 215
+    //         ) UNION 
+    //         SELECT U1, U2 FROM (
+    //             SELECT DISTINCT USER_ID as U1 
+    //             FROM project2.Public_Users 
+    //             WHERE User_ID = 215
+    //         ) CROSS JOIN (
+    //             SELECT DISTINCT USER_ID as U2
+    //             FROM project2.Public_Users 
+    //             WHERE User_ID > 215
+    //         );
+
+                    
+    //         SELECT Author_ID, First_Name, Last_Name
+    //         FROM Authors
+    //         WHERE Author_ID NOT IN ( 
+    //         SELECT DISTINCT Author_ID FROM ( 
+    //             SELECT User_ID
+    //             FROM (
+    //                 SELECT U1, U2 FROM (
+    //                     SELECT DISTINCT USER_ID as U1 
+    //                     FROM project2.Public_Users 
+    //                     WHERE User_ID < 215
+    //                 ) CROSS JOIN (
+    //                     SELECT DISTINCT USER_ID as U2
+    //                     FROM project2.Public_Users 
+    //                     WHERE User_ID = 215
+    //                 ) UNION 
+    //                 SELECT U1, U2 FROM (
+    //                     SELECT DISTINCT USER_ID as U1 
+    //                     FROM project2.Public_Users 
+    //                     WHERE User_ID = 215
+    //                 ) CROSS JOIN (
+    //                     SELECT DISTINCT USER_ID as U2
+    //                     FROM project2.Public_Users 
+    //                     WHERE User_ID > 215
+    //                 )
+    //             MINUS
+    //             ( SELECT DISTINCT A.Author_ID, S.Subject_ID
+    //             FROM Authors A, Books B, Subjects S
+    //             WHERE A.Author_ID = B.Author_ID AND B.Subject_ID = S.Subject_ID
+    //             ) 
+    //         )
+    //         )
+
+
+    //         /*
+    //          * EXAMPLE DATA STRUCTURE USAGE
+    //          * ============================================
+    //          * UserInfo old = new UserInfo(12000000, "Galileo", "Galilei");
+    //          * UserInfo young = new UserInfo(80000000, "Neil", "deGrasse Tyson");
+    //          * return new AgeInfo(old, young);
+    //          */
+    //         return new AgeInfo(new UserInfo(-1, "UNWRITTEN", "UNWRITTEN"), new UserInfo(-1, "UNWRITTEN", "UNWRITTEN")); // placeholder
+    //                                                                                                                     // for
+    //                                                                                                                     // compilation
+    //     } catch (SQLException e) {
+    //         System.err.println(e.getMessage());
+    //         return new AgeInfo(new UserInfo(-1, "ERROR", "ERROR"), new UserInfo(-1, "ERROR", "ERROR"));
+    //     }
+    // }
 
     @Override
     // Query 9
