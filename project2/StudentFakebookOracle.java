@@ -541,10 +541,11 @@ public final class StudentFakebookOracle extends FakebookOracle {
             // inner.ID DESC;
 
             ResultSet rst = stmt.executeQuery(
-                    "SELECT inner.ID, U.First_Name, U.Last_Name, U.Year_of_birth, U.Month_of_Birth, U.Day_of_Birth " +
+                    "SELECT inner.ID, U.First_Name, U.Last_Name " +
                             "FROM " + UsersTable + " U, ( " +
                             "SELECT User1_ID as ID FROM " + FriendsTable + " " +
                             "WHERE User2_ID = " + userID + " " +
+                            "UNION " +
                             "SELECT User2_ID as ID FROM " + FriendsTable + " " +
                             "WHERE User1_ID = " + userID + " " +
                             ") inner " +
@@ -555,10 +556,11 @@ public final class StudentFakebookOracle extends FakebookOracle {
             UserInfo old = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
 
             rst = stmt.executeQuery(
-                    "SELECT inner.ID, U.First_Name, U.Last_Name, U.Year_of_birth, U.Month_of_Birth, U.Day_of_Birth " +
+                    "SELECT inner.ID, U.First_Name, U.Last_Name " +
                             "FROM " + UsersTable + " U, ( " +
                             "SELECT User1_ID as ID FROM " + FriendsTable + " " +
                             "WHERE User2_ID = " + userID + " " +
+                            "UNION " +
                             "SELECT User2_ID as ID FROM " + FriendsTable + " " +
                             "WHERE User1_ID = " + userID + " " +
                             ") inner " +
