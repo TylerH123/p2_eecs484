@@ -435,6 +435,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            SELECT FROM 
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
@@ -517,75 +519,73 @@ public final class StudentFakebookOracle extends FakebookOracle {
     public AgeInfo findAgeInfo(long userID) throws SQLException {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
-            
-    //         SELECT U1, U2 FROM (
-    //             SELECT DISTINCT USER_ID as U1 
-    //             FROM project2.Public_Users 
-    //             WHERE User_ID < 215
-    //         ) CROSS JOIN (
-    //             SELECT DISTINCT USER_ID as U2
-    //             FROM project2.Public_Users 
-    //             WHERE User_ID = 215
-    //         ) UNION 
-    //         SELECT U1, U2 FROM (
-    //             SELECT DISTINCT USER_ID as U1 
-    //             FROM project2.Public_Users 
-    //             WHERE User_ID = 215
-    //         ) CROSS JOIN (
-    //             SELECT DISTINCT USER_ID as U2
-    //             FROM project2.Public_Users 
-    //             WHERE User_ID > 215
-    //         );
 
-                    
-    //         SELECT Author_ID, First_Name, Last_Name
-    //         FROM Authors
-    //         WHERE Author_ID NOT IN ( 
-    //         SELECT DISTINCT Author_ID FROM ( 
-    //             SELECT User_ID
-    //             FROM (
-    //                 SELECT U1, U2 FROM (
-    //                     SELECT DISTINCT USER_ID as U1 
-    //                     FROM project2.Public_Users 
-    //                     WHERE User_ID < 215
-    //                 ) CROSS JOIN (
-    //                     SELECT DISTINCT USER_ID as U2
-    //                     FROM project2.Public_Users 
-    //                     WHERE User_ID = 215
-    //                 ) UNION 
-    //                 SELECT U1, U2 FROM (
-    //                     SELECT DISTINCT USER_ID as U1 
-    //                     FROM project2.Public_Users 
-    //                     WHERE User_ID = 215
-    //                 ) CROSS JOIN (
-    //                     SELECT DISTINCT USER_ID as U2
-    //                     FROM project2.Public_Users 
-    //                     WHERE User_ID > 215
-    //                 )
-    //             MINUS
-    //             ( SELECT DISTINCT A.Author_ID, S.Subject_ID
-    //             FROM Authors A, Books B, Subjects S
-    //             WHERE A.Author_ID = B.Author_ID AND B.Subject_ID = S.Subject_ID
-    //             ) 
-    //         )
-    //         )
+            // SELECT U1, U2 FROM (
+            // SELECT DISTINCT USER_ID as U1
+            // FROM project2.Public_Users
+            // WHERE User_ID < 215
+            // ) CROSS JOIN (
+            // SELECT DISTINCT USER_ID as U2
+            // FROM project2.Public_Users
+            // WHERE User_ID = 215
+            // ) UNION
+            // SELECT U1, U2 FROM (
+            // SELECT DISTINCT USER_ID as U1
+            // FROM project2.Public_Users
+            // WHERE User_ID = 215
+            // ) CROSS JOIN (
+            // SELECT DISTINCT USER_ID as U2
+            // FROM project2.Public_Users
+            // WHERE User_ID > 215
+            // );
 
+            // SELECT Author_ID, First_Name, Last_Name
+            // FROM Authors
+            // WHERE Author_ID NOT IN (
+            // SELECT DISTINCT Author_ID FROM (
+            // SELECT User_ID
+            // FROM (
+            // SELECT U1, U2 FROM (
+            // SELECT DISTINCT USER_ID as U1
+            // FROM project2.Public_Users
+            // WHERE User_ID < 215
+            // ) CROSS JOIN (
+            // SELECT DISTINCT USER_ID as U2
+            // FROM project2.Public_Users
+            // WHERE User_ID = 215
+            // ) UNION
+            // SELECT U1, U2 FROM (
+            // SELECT DISTINCT USER_ID as U1
+            // FROM project2.Public_Users
+            // WHERE User_ID = 215
+            // ) CROSS JOIN (
+            // SELECT DISTINCT USER_ID as U2
+            // FROM project2.Public_Users
+            // WHERE User_ID > 215
+            // )
+            // MINUS
+            // ( SELECT DISTINCT A.Author_ID, S.Subject_ID
+            // FROM Authors A, Books B, Subjects S
+            // WHERE A.Author_ID = B.Author_ID AND B.Subject_ID = S.Subject_ID
+            // )
+            // )
+            // )
 
-    //         /*
-    //          * EXAMPLE DATA STRUCTURE USAGE
-    //          * ============================================
-    //          * UserInfo old = new UserInfo(12000000, "Galileo", "Galilei");
-    //          * UserInfo young = new UserInfo(80000000, "Neil", "deGrasse Tyson");
-    //          * return new AgeInfo(old, young);
-    //          */
-    //         return new AgeInfo(new UserInfo(-1, "UNWRITTEN", "UNWRITTEN"), new UserInfo(-1, "UNWRITTEN", "UNWRITTEN")); // placeholder
-    //                                                                                                                     // for
-    //                                                                                                                     // compilation
-    //     } catch (SQLException e) {
-    //         System.err.println(e.getMessage());
-    //         return new AgeInfo(new UserInfo(-1, "ERROR", "ERROR"), new UserInfo(-1, "ERROR", "ERROR"));
-    //     }
-    // }
+            /*
+             * EXAMPLE DATA STRUCTURE USAGE
+             * ============================================
+             * UserInfo old = new UserInfo(12000000, "Galileo", "Galilei");
+             * UserInfo young = new UserInfo(80000000, "Neil", "deGrasse Tyson");
+             * return new AgeInfo(old, young);
+             */
+            return new AgeInfo(new UserInfo(-1, "UNWRITTEN", "UNWRITTEN"), new UserInfo(-1, "UNWRITTEN", "UNWRITTEN")); // placeholder
+                                                                                                                        // for
+                                                                                                                        // compilation
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            return new AgeInfo(new UserInfo(-1, "ERROR", "ERROR"), new UserInfo(-1, "ERROR", "ERROR"));
+        }
+    }
 
     @Override
     // Query 9
