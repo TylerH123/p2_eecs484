@@ -436,7 +436,6 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
-            SELECT FROM 
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
