@@ -479,8 +479,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
             int highest = 0;
             EventStateInfo info = new EventStateInfo(-1);
             if (rst.next()) {
-                info = new EventStateInfo(highest);
                 highest = rst.getInt(2);
+                info = new EventStateInfo(highest);
                 info.addState(rst.getString(1));
             }
             while (rst.next()) {
