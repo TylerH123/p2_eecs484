@@ -436,11 +436,13 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
-            SELECT DISTINCT U2.User_ID 
-            FROM project2.Public_Users U1, project2.Public_Users U2, project2.Public_Friends F 
-            WHERE U1.User_ID < U2.User_ID AND U1.User_ID != F.User1_ID AND U2.User_ID != F.User2_ID
-            AND U1.User_ID = 0
-            ORDER BY U2.User_ID;
+            // SELECT DISTINCT U2.User_ID
+            // FROM project2.Public_Users U1, project2.Public_Users U2,
+            // project2.Public_Friends F
+            // WHERE U1.User_ID < U2.User_ID AND U1.User_ID != F.User1_ID AND U2.User_ID !=
+            // F.User2_ID
+            // AND U1.User_ID = 0
+            // ORDER BY U2.User_ID;
 
             /*
              * EXAMPLE DATA STRUCTURE USAGE
