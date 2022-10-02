@@ -483,57 +483,39 @@ public final class StudentFakebookOracle extends FakebookOracle {
             int count = 0;
 
             while (rst.next() && count < num) {
-                int u1_id = rst.getInt(1);
-                int u2_id = rst.getInt(4);
+                try (Statement inner = oracle.createStatement(FakebookOracleConstants.AllScroll,
+                        FakebookOracleConstants.ReadOnly)) {
+                    int u1_id = rst.getInt(1);
+                    int u2_id = rst.getInt(4);
 
-                UserInfo u1 = new UserInfo(u1_id, rst.getString(2), rst.getString(3));
-                UserInfo u2 = new UserInfo(u2_id, rst.getString(5), rst.getString(6));
-                UsersPair p = new UsersPair(u1, u2);
-
-                ResultSet friends = stmt.executeQuery(
-                        "SELECT ID, U.First_Name, U.Last_Name " +
-                                "FROM " + UsersTable + " U, (( " +
-                                "SELECT User1_ID as ID FROM " + FriendsTable + " " +
-                                "WHERE User2_ID =  " + u1_id + " " +
-                                "UNION " +
-                                "SELECT User2_ID as ID FROM " + FriendsTable + " " +
-                                "WHERE User1_ID = " + u1_id + " " +
-                                ") INTERSECT ( " +
-                                "SELECT User1_ID as ID FROM " + FriendsTable + " " +
-                                "WHERE User2_ID = " + u2_id + " " +
-                                "UNION " +
-                                "SELECT User2_ID as ID FROM " + FriendsTable + " " +
-                                "WHERE User1_ID = " + u2_id + ")) " +
-                                "WHERE ID = U.User_ID " +
-                                "ORDER BY ID");
-
-                while (friends.next()) {
-                    UserInfo u3 = new UserInfo(friends.getInt(1), friends.getString(2), friends.getString(3));
-                    p.addSharedFriend(u3);
+                    UserInfo u1 = new UserInfo(u1_id, rst.getString(2), rst.getString(3));
+                    UserInfo u2 = new UserInfo(u2_id, rst.getString(5), rst.getString(6));
+                    UsersPair p = new UsersPair(u1, u2);
+                    ResultSet friends = inner.executeQuery(
+                            "SELECT ID, U.First_Name, U.Last_Name " +
+                                    "FROM " + UsersTable + " U, (( " +
+                                    "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                                    "WHERE User2_ID =  " + u1_id + " " +
+                                    "UNION " +
+                                    "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                                    "WHERE User1_ID = " + u1_id + " " +
+                                    ") INTERSECT ( " +
+                                    "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                                    "WHERE User2_ID = " + u2_id + " " +
+                                    "UNION " +
+                                    "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                                    "WHERE User1_ID = " + u2_id + ")) " +
+                                    "WHERE ID = U.User_ID " +
+                                    "ORDER BY ID");
+                    while (friends.next()) {
+                        UserInfo u3 = new UserInfo(friends.getInt(1), friends.getString(2), friends.getString(3));
+                        p.addSharedFriend(u3);
+                    }
+                    results.add(p);
+                    count++;
+                } catch (SQLException e) {
+                    System.err.println(e.getMessage());
                 }
-                results.add(p);
-                count++;
-                System.out.println(num);
-                System.out.println(count);
-
-                // SELECT ID, U.First_Name, U.Last_Name
-                // FROM project2.Public_Users U, (
-                // (
-                // SELECT User1_ID as ID FROM project2.Public_Friends
-                // WHERE User2_ID = 410
-                // UNION
-                // SELECT User2_ID as ID FROM project2.Public_Friends
-                // WHERE User1_ID = 410
-                // ) INTERSECT (
-                // SELECT User1_ID as ID FROM project2.Public_Friends
-                // WHERE User2_ID = 533
-                // UNION
-                // SELECT User2_ID as ID FROM project2.Public_Friends
-                // WHERE User1_ID = 533
-                // )
-                // )
-                // WHERE ID = U.User_ID
-                // ORDER BY ID;
             }
             /*
              * EXAMPLE DATA STRUCTURE USAGE
@@ -545,9 +527,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
              * up.addSharedFriend(u3);
              * results.add(up);
              */
-        } catch (
-
-        SQLException e) {
+        } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
         return results;
