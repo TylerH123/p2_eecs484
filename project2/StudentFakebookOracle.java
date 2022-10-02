@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import javax.script.SimpleBindings;
 import javax.swing.text.html.HTML.Tag;
 
 /*
@@ -436,13 +437,81 @@ public final class StudentFakebookOracle extends FakebookOracle {
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
 
-            // SELECT DISTINCT U2.User_ID
+            // SELECT pain.U1_ID, U1.First_Name, U1.Last_Name, pain.U2_ID, U2.First_Name,
+            // U2.Last_Name
             // FROM project2.Public_Users U1, project2.Public_Users U2,
-            // project2.Public_Friends F
-            // WHERE U1.User_ID < U2.User_ID AND U1.User_ID != F.User1_ID AND U2.User_ID !=
-            // F.User2_ID
-            // AND U1.User_ID = 0
-            // ORDER BY U2.User_ID;
+            // (
+            // SELECT DISTINCT inner.U1_ID, inner.U2_ID, COUNT(*)
+            // FROM project2.Public_Friends F1, project2.Public_Friends F2,
+            // (
+            // SELECT DISTINCT U1.User_ID AS U1_ID, U2.User_ID AS U2_ID
+            // FROM project2.Public_Users U1, project2.Public_Users U2
+            // WHERE U1.User_ID < U2.User_ID
+            // MINUS (
+            // SELECT F.User1_ID, F.User2_ID
+            // FROM project2.Public_Friends F
+            // )
+            // ) inner
+            // WHERE (inner.U1_ID = F1.User1_ID AND ((F1.User2_ID = F2.User2_ID AND
+            // F2.User1_ID = inner.U2_ID)
+            // OR (F1.User2_ID = F2.User1_ID AND F2.User2_ID = inner.U2_ID)))
+            // OR (inner.U1_ID = F1.User2_ID AND F1.User1_ID = F2.User1_ID AND F2.User2_ID =
+            // inner.U2_ID)
+            // GROUP BY inner.U1_ID, inner.U2_ID
+            // ORDER BY COUNT(*) DESC, inner.U1_ID, inner.U2_ID
+            // ) pain
+            // WHERE pain.U1_ID = U1.User_ID AND pain.U2_ID = U2.User_ID;
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT pain.U1_ID, U1.First_Name, U1.Last_Name, pain.U2_ID, U2.First_Name, U2.Last_Name " +
+                            "FROM " + UsersTable + " U1, " + UsersTable + "  U2, " +
+                            "( SELECT DISTINCT inner.U1_ID, inner.U2_ID, COUNT(*) " +
+                            "FROM " + FriendsTable + " F1, " + FriendsTable + " F2, " +
+                            "( SELECT DISTINCT U1.User_ID AS U1_ID, U2.User_ID AS U2_ID " +
+                            "FROM " + UsersTable + " U1, " + UsersTable + " U2 " +
+                            "WHERE U1.User_ID < U2.User_ID " +
+                            "MINUS (SELECT F.User1_ID, F.User2_ID FROM " + FriendsTable + " F) ) inner " +
+                            "WHERE (inner.U1_ID = F1.User1_ID AND ((F1.User2_ID = F2.User2_ID AND F2.User1_ID = inner.U2_ID) "
+                            +
+                            "OR (F1.User2_ID = F2.User1_ID AND F2.User2_ID = inner.U2_ID))) " +
+                            "OR (inner.U1_ID = F1.User2_ID AND F1.User1_ID = F2.User1_ID AND F2.User2_ID = inner.U2_ID) "
+                            +
+                            "GROUP BY inner.U1_ID, inner.U2_ID " +
+                            "ORDER BY COUNT(*) DESC, inner.U1_ID, inner.U2_ID " +
+                            ") pain " +
+                            "WHERE pain.U1_ID = U1.User_ID AND pain.U2_ID = U2.User_ID");
+            int count = 0;
+            while (rst.next() && count < num) {
+                int u1_id = rst.getInt(1);
+                int u2_id = rst.getInt(4);
+
+                UserInfo u1 = new UserInfo(u1_id, rst.getString(2), rst.getString(3));
+                UserInfo u2 = new UserInfo(u2_id, rst.getString(5), rst.getString(6));
+                UsersPair p = new UsersPair(u1, u2);
+
+                ResultSet friends = stmt.executeQuery(
+                        "SELECT ID, U.First_Name, U.Last_Name " +
+                                "FROM " + UsersTable + " U, ( " +
+                                "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                                "WHERE User2_ID =  " + u1_id + " " +
+                                "UNION " +
+                                "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                                "WHERE User1_ID = " + u1_id + " " +
+                                ") INTERSECT ( " +
+                                "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                                "WHERE User2_ID = " + u2_id + " " +
+                                "UNION " +
+                                "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                                "WHERE User1_ID = " + u2_id + ") " +
+                                "WHERE ID = U.User_ID " +
+                                "ORDER BY ID");
+
+                while (friends.next()) {
+                    UserInfo u3 = new UserInfo(friends.getInt(1), friends.getString(2), friends.getString(3));
+                    p.addSharedFriend(u3);
+                }
+                count++;
+            }
 
             /*
              * EXAMPLE DATA STRUCTURE USAGE
@@ -543,10 +612,10 @@ public final class StudentFakebookOracle extends FakebookOracle {
             ResultSet rst = stmt.executeQuery(
                     "SELECT inner.ID, U.First_Name, U.Last_Name " +
                             "FROM " + UsersTable + " U, ( " +
-                            "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                            "SELECT User1_ID AS ID FROM " + FriendsTable + " " +
                             "WHERE User2_ID = " + userID + " " +
                             "UNION " +
-                            "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                            "SELECT User2_ID AS ID FROM " + FriendsTable + " " +
                             "WHERE User1_ID = " + userID + " " +
                             ") inner " +
                             "WHERE U.User_ID = inner.ID " +
@@ -558,10 +627,10 @@ public final class StudentFakebookOracle extends FakebookOracle {
             rst = stmt.executeQuery(
                     "SELECT inner.ID, U.First_Name, U.Last_Name " +
                             "FROM " + UsersTable + " U, ( " +
-                            "SELECT User1_ID as ID FROM " + FriendsTable + " " +
+                            "SELECT User1_ID AS ID FROM " + FriendsTable + " " +
                             "WHERE User2_ID = " + userID + " " +
                             "UNION " +
-                            "SELECT User2_ID as ID FROM " + FriendsTable + " " +
+                            "SELECT User2_ID AS ID FROM " + FriendsTable + " " +
                             "WHERE User1_ID = " + userID + " " +
                             ") inner " +
                             "WHERE U.User_ID = inner.ID " +
@@ -597,6 +666,37 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
         try (Statement stmt = oracle.createStatement(FakebookOracleConstants.AllScroll,
                 FakebookOracleConstants.ReadOnly)) {
+
+            // SELECT U1.User_ID, U1.First_Name, U1.Last_Name, U2.User_ID, U2.First_Name,
+            // U2.Last_Name
+            // FROM project2.Public_Users U1, project2.Public_Users U2,
+            // project2.Public_Friends F, project2.Public_User_Hometown_City H1,
+            // project2.Public_User_Hometown_City H2
+            // WHERE U1.User_ID < U2.User_ID AND U1.Last_Name = U2.Last_Name AND U1.User_ID
+            // = H1.User_ID AND U2.User_ID = H2.User_ID AND H1.Hometown_City_ID =
+            // H2.Hometown_City_ID
+            // AND U1.User_ID = F.User1_ID AND U2.User_ID = F.User2_ID AND
+            // ABS(U1.Year_of_birth - U2.Year_of_birth) < 10
+            // ORDER BY U1.User_ID, U2.User_ID;
+
+            ResultSet rst = stmt.executeQuery(
+                    "SELECT U1.User_ID, U1.First_Name, U1.Last_Name, U2.User_ID, U2.First_Name, U2.Last_Name " +
+                            "FROM " + UsersTable + " U1, " + UsersTable + " U2, " + FriendsTable + " F, "
+                            + HometownCitiesTable + " H1, " + HometownCitiesTable + " H2 " +
+                            "SELECT User1_ID AS ID FROM " + FriendsTable + " " +
+                            "WHERE U1.User_ID < U2.User_ID AND U1.Last_Name = U2.Last_Name " +
+                            "AND U1.User_ID = H1.User_ID AND U2.User_ID = H2.User_ID " +
+                            "AND H1.Hometown_City_ID = H2.Hometown_City_ID AND U1.User_ID = F.User1_ID " +
+                            "AND U2.User_ID = F.User2_ID AND ABS(U1.Year_of_birth - U2.Year_of_birth) < 10 " +
+                            "ORDER BY U1.User_ID, U2.User_ID");
+
+            while (rst.next()) {
+                UserInfo u1 = new UserInfo(rst.getInt(1), rst.getString(2), rst.getString(3));
+                UserInfo u2 = new UserInfo(rst.getInt(4), rst.getString(5), rst.getString(6));
+                SiblingInfo s = new SiblingInfo(u1, u2);
+                results.add(s);
+            }
+
             /*
              * EXAMPLE DATA STRUCTURE USAGE
              * ============================================
