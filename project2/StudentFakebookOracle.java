@@ -491,7 +491,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
                 ResultSet friends = stmt.executeQuery(
                         "SELECT ID, U.First_Name, U.Last_Name " +
-                                "FROM " + UsersTable + " U, ( " +
+                                "FROM " + UsersTable + " U, (( " +
                                 "SELECT User1_ID as ID FROM " + FriendsTable + " " +
                                 "WHERE User2_ID =  " + u1_id + " " +
                                 "UNION " +
@@ -502,7 +502,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                                 "WHERE User2_ID = " + u2_id + " " +
                                 "UNION " +
                                 "SELECT User2_ID as ID FROM " + FriendsTable + " " +
-                                "WHERE User1_ID = " + u2_id + ") " +
+                                "WHERE User1_ID = " + u2_id + ")) " +
                                 "WHERE ID = U.User_ID " +
                                 "ORDER BY ID");
 
@@ -511,6 +511,25 @@ public final class StudentFakebookOracle extends FakebookOracle {
                     p.addSharedFriend(u3);
                 }
                 count++;
+
+                // SELECT ID, U.First_Name, U.Last_Name
+                // FROM project2.Public_Users U, (
+                // (
+                // SELECT User1_ID as ID FROM project2.Public_Friends
+                // WHERE User2_ID = 410
+                // UNION
+                // SELECT User2_ID as ID FROM project2.Public_Friends
+                // WHERE User1_ID = 410
+                // ) INTERSECT (
+                // SELECT User1_ID as ID FROM project2.Public_Friends
+                // WHERE User2_ID = 533
+                // UNION
+                // SELECT User2_ID as ID FROM project2.Public_Friends
+                // WHERE User1_ID = 533
+                // )
+                // )
+                // WHERE ID = U.User_ID
+                // ORDER BY ID;
             }
 
             /*
