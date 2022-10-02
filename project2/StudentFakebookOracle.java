@@ -330,7 +330,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 FakebookOracleConstants.ReadOnly)) {
 
             // SELECT U1.USER_ID, U1.First_Name, U1.Last_Name, U1.Year_of_birth, U2.USER_ID,
-            // U2.First_Name, U2.Last_Name, U2.Year_of_birth,
+            // U2.First_Name, U2.Last_Name, U2.Year_of_birth
             // FROM project2.Public_Users U1, project2.Public_Users U2, (
             // SELECT T1.Tag_Subject_ID AS U1_ID, T2.Tag_Subject_ID AS U2_ID, COUNT(*)
             // FROM project2.Public_Tags T1, project2.Public_Tags T2,
@@ -684,9 +684,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
 
             ResultSet rst = stmt.executeQuery(
                     "SELECT U1.User_ID, U1.First_Name, U1.Last_Name, U2.User_ID, U2.First_Name, U2.Last_Name " +
-                            "FROM " + UsersTable + " U1, " + UsersTable + " U2, " + FriendsTable + " F, "
-                            + HometownCitiesTable + " H1, " + HometownCitiesTable + " H2 " +
-                            "SELECT User1_ID AS ID FROM " + FriendsTable + " " +
+                            "FROM " + UsersTable + " U1, " + UsersTable + " U2, " + FriendsTable + " F, " +
+                            HometownCitiesTable + " H1, " + HometownCitiesTable + " H2 " +
                             "WHERE U1.User_ID < U2.User_ID AND U1.Last_Name = U2.Last_Name " +
                             "AND U1.User_ID = H1.User_ID AND U2.User_ID = H2.User_ID " +
                             "AND H1.Hometown_City_ID = H2.Hometown_City_ID AND U1.User_ID = F.User1_ID " +
