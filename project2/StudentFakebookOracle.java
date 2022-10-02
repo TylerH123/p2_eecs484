@@ -354,8 +354,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
             // AND ROWNUM <= 2;
 
             ResultSet rst = stmt.executeQuery(
-                    "SELECT U1.USER_ID, U1.First_Name, U1.Last_Name, U1.Year_of_birth, U2.USER_ID, U2.First_Name, U2.Last_Name, U2.Year_of_birth "
-                            +
+                    "SELECT U1.USER_ID, U1.First_Name, U1.Last_Name, U1.Year_of_birth, " +
+                            "U2.USER_ID, U2.First_Name, U2.Last_Name, U2.Year_of_birth " +
                             "FROM " + UsersTable + " U1, " + UsersTable + " U2, ( " +
                             "SELECT T1.Tag_Subject_ID AS U1_ID, T2.Tag_Subject_ID AS U2_ID, COUNT(*) " +
                             "FROM " + TagsTable + " T1, " + TagsTable + " T2, ( " +
@@ -369,7 +369,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             ") innermost " +
                             "WHERE T1.Tag_Subject_ID = innermost.U1_ID AND T2.Tag_Subject_ID = innermost.U2_ID " +
                             "AND T1.Tag_Photo_ID = T2.Tag_Photo_ID " +
-                            "GROUP BY U1_ID, U2_ID " +
+                            "GROUP BY T1.Tag_Subject_ID, T2.Tag_Subject_ID " +
                             "ORDER BY COUNT(*) DESC, T1.Tag_Subject_ID, T2.Tag_Subject_ID " +
                             ") inner " +
                             "WHERE U1.User_ID = inner.U1_ID AND U2.User_ID = inner.U2_ID " +
