@@ -481,6 +481,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                             ") pain " +
                             "WHERE pain.U1_ID = U1.User_ID AND pain.U2_ID = U2.User_ID");
             int count = 0;
+
             while (rst.next() && count < num) {
                 int u1_id = rst.getInt(1);
                 int u2_id = rst.getInt(4);
@@ -512,6 +513,8 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 }
                 results.add(p);
                 count++;
+                System.out.println(num);
+                System.out.println(count);
 
                 // SELECT ID, U.First_Name, U.Last_Name
                 // FROM project2.Public_Users U, (
@@ -532,22 +535,25 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 // WHERE ID = U.User_ID
                 // ORDER BY ID;
             }
-
-            /*
-             * EXAMPLE DATA STRUCTURE USAGE
-             * ============================================
-             * UserInfo u1 = new UserInfo(16, "The", "Hacker");
-             * UserInfo u2 = new UserInfo(80, "Dr.", "Marbles");
-             * UserInfo u3 = new UserInfo(192, "Digit", "Le Boid");
-             * UsersPair up = new UsersPair(u1, u2);
-             * up.addSharedFriend(u3);
-             * results.add(up);
-             */
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
         }
+        /*
+         * EXAMPLE DATA STRUCTURE USAGE
+         * ============================================
+         * UserInfo u1 = new UserInfo(16, "The", "Hacker");
+         * UserInfo u2 = new UserInfo(80, "Dr.", "Marbles");
+         * UserInfo u3 = new UserInfo(192, "Digit", "Le Boid");
+         * UsersPair up = new UsersPair(u1, u2);
+         * up.addSharedFriend(u3);
+         * results.add(up);
+         */
+    }catch(
 
-        return results;
+    SQLException e)
+    {
+        System.err.println(e.getMessage());
+    }
+
+    return results;
     }
 
     @Override
