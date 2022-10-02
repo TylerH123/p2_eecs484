@@ -510,6 +510,7 @@ public final class StudentFakebookOracle extends FakebookOracle {
                     UserInfo u3 = new UserInfo(friends.getInt(1), friends.getString(2), friends.getString(3));
                     p.addSharedFriend(u3);
                 }
+                results.add(p);
                 count++;
 
                 // SELECT ID, U.First_Name, U.Last_Name
