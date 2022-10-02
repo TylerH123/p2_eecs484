@@ -535,25 +535,22 @@ public final class StudentFakebookOracle extends FakebookOracle {
                 // WHERE ID = U.User_ID
                 // ORDER BY ID;
             }
+            /*
+             * EXAMPLE DATA STRUCTURE USAGE
+             * ============================================
+             * UserInfo u1 = new UserInfo(16, "The", "Hacker");
+             * UserInfo u2 = new UserInfo(80, "Dr.", "Marbles");
+             * UserInfo u3 = new UserInfo(192, "Digit", "Le Boid");
+             * UsersPair up = new UsersPair(u1, u2);
+             * up.addSharedFriend(u3);
+             * results.add(up);
+             */
+        } catch (
+
+        SQLException e) {
+            System.err.println(e.getMessage());
         }
-        /*
-         * EXAMPLE DATA STRUCTURE USAGE
-         * ============================================
-         * UserInfo u1 = new UserInfo(16, "The", "Hacker");
-         * UserInfo u2 = new UserInfo(80, "Dr.", "Marbles");
-         * UserInfo u3 = new UserInfo(192, "Digit", "Le Boid");
-         * UsersPair up = new UsersPair(u1, u2);
-         * up.addSharedFriend(u3);
-         * results.add(up);
-         */
-    }catch(
-
-    SQLException e)
-    {
-        System.err.println(e.getMessage());
-    }
-
-    return results;
+        return results;
     }
 
     @Override
